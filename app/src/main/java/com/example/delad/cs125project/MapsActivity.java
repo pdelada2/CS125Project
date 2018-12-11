@@ -67,11 +67,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
             Address address = addressList.get(0);
-            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(latLng).title("City of Interest"));
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            LatLng City = new LatLng(address.getLatitude(), address.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(City).title("City of Interest"));
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(City));
         }
     }
+
     public void onNormalMap(View view) {
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
@@ -88,6 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onHybridMap(View view) {
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     }
+
     private void addHeatMap() {
         List<LatLng> list = new ArrayList<>();
 
@@ -99,7 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         // Create a heat map tile provider, passing it the latlngs of the crime.
-        Gradient gradient = new Gradient(colors,startPoints);
+        Gradient gradient = new Gradient(colors, startPoints);
         mProv = new HeatmapTileProvider.Builder()
                 .data(list)
                 .gradient(gradient)
@@ -108,8 +110,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
         // Add a tile overlay to the map, using the heat map tile provider.
         mOver = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProv));
-        mOver.clearTileCache();
-        Toast.makeText(this,"added heatmap",Toast.LENGTH_SHORT).show();
+        /*mOver.clearTileCache();
+        Toast.makeText(this, "added heatmap", Toast.LENGTH_SHORT).show();*/
     }
 
     private ArrayList<LatLng> readItems(int resource) throws JSONException {
@@ -125,6 +127,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         return list;
     }
+
     int[] colors = {Color.BLUE, Color.YELLOW, Color.RED};
     float[] startPoints = {
             0.8f,    //0-50
@@ -150,7 +153,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng champaign = new LatLng(40.1164, -88.2434);
         mMap.addMarker(new MarkerOptions().position(champaign).title("Champaign, Illinois"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(champaign));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(40.1164,-88.2434), 12.0f));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(40.1164, -88.2434), 12.0f));
         addHeatMap();
         mSettings.setZoomControlsEnabled(true);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -163,71 +166,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-
-
-    /*// Declare a variable for the cluster manager.
-    private ClusterManager<MyItem> mClusterManager;
-
-    private void setUpClusterer() {
-        // Position the map.
-        ().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
-
-        // Initialize the manager with the context and the map.
-        // (Activity extends context, so we can pass 'this' in the constructor.)
-        mClusterManager = new ClusterManager<MyItem>(this, getMap());
-
-        // Point the map's listeners at the listeners implemented by the cluster
-        // manager.
-        getMap().setOnCameraIdleListener(mClusterManager);
-        getMap().setOnMarkerClickListener(mClusterManager);
-
-        // Add cluster items (markers) to the cluster manager.
-        addItems();
-    }
-
-    private void addItems() {
-
-        // Set some lat/lng coordinates to start with.
-        double lat = 51.5145160;
-        double lng = -0.1270060;
-
-        // Add ten cluster items in close proximity, for purposes of this example.
-        for (int i = 0; i < 10; i++) {
-            double offset = i / 60d;
-            lat = lat + offset;
-            lng = lng + offset;
-            MyItem offsetItem = new MyItem(lat, lng);
-            mClusterManager.addItem(offsetItem);
-        }
-    }*/
 }
-/*public class MyItem implements ClusterItem {
-    private final LatLng mPosition;
-    private final String mTitle;
-    private final String mSnippet;
 
-    public MyItem(double lat, double lng) {
-        mPosition = new LatLng(lat, lng);
-    }
 
-    public MyItem(double lat, double lng, String title, String snippet) {
-        mPosition = new LatLng(lat, lng);
-        mTitle = title;
-        mSnippet = snippet;
-    }
 
-    @Override
-    public LatLng getPosition() {
-        return mPosition;
-    }
 
-    @Override
-    public String getTitle() {
-        return mTitle;
-    }
-
-    @Override
-    public String getSnippet() {
-        return mSnippet;
-    }
-}*/
