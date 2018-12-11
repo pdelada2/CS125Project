@@ -1,5 +1,6 @@
 package com.example.delad.cs125project;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.Manifest;
@@ -19,9 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.TileProvider;
-import com.google.maps.android.clustering.ClusterItem;
-import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.json.JSONArray;
@@ -37,8 +36,8 @@ import java.util.Scanner;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private HeatmapTileProvider mProvider;
-    private TileOverlay mOverlay;
+    private HeatmapTileProvider mProv;
+    private TileOverlay mOver;
 
 
     @Override
@@ -49,6 +48,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        //addHeatMap();
     }
 
     public void onMapSearch(View view) {
@@ -57,9 +57,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         List<Address> addressList = null;
 
         if (location != null || !location.equals("")) {
-            Geocoder geocoder = new Geocoder(this);
+            Geocoder geocod = new Geocoder(this);
             try {
-                addressList = geocoder.getFromLocationName(location, 1);
+                addressList = geocod.getFromLocationName(location, 1);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -86,23 +86,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onHybridMap(View view) {
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     }
-    private void addHeatMap() {
-        List<LatLng> list = null;
+    /*private void addHeatMap() {
+        List<LatLng> list = new ArrayList<>();
 
-        // Get the data: latitude/longitude positions of police stations.
+        // Get the data: latitude/longitude positions of the crime.
         try {
-            list = readItems(R.raw.UIPD);
+            list = readItems(R.raw.uipd);
         } catch (JSONException e) {
             Toast.makeText(this, "Problem reading list of locations.", Toast.LENGTH_LONG).show();
         }
 
-        // Create a heat map tile provider, passing it the latlngs of the police stations.
+        // Create a heat map tile provider, passing it the latlngs of the crime.
+        Gradient gradient = new Gradient(colors,startPoints);
         mProvider = new HeatmapTileProvider.Builder()
                 .data(list)
+                .gradient(gradient)
+                .radius(20)
                 .build();
         // Add a tile overlay to the map, using the heat map tile provider.
         mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
-    }
+        mOverlay.clearTileCache();
+        Toast.makeText(this,"added heatmap",Toast.LENGTH_SHORT).show();
+    }*/
 
     private ArrayList<LatLng> readItems(int resource) throws JSONException {
         ArrayList<LatLng> list = new ArrayList<LatLng>();
@@ -117,6 +122,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         return list;
     }
+    int[] colors = {Color.GREEN, Color.YELLOW, Color.rgb(255,165,0),
+        Color.RED, Color.rgb(153,50,204), Color.rgb(165,42,42)};
+    float[] startPoints = {
+            0.0f,    //0-50
+            0.1f,   //51-100
+            0.2f,   //101-150
+            0.3f,   //151-200
+            0.4f,    //201-300
+            0.6f      //301-500
+    };
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -141,13 +157,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         mMap.setMyLocationEnabled(true);
+        List<LatLng> list = null;
+
+        // Get the data: latitude/longitude positions of the crime.
+        try {
+            list = readItems(R.raw.uipd);
+        } catch (JSONException e) {
+            Toast.makeText(this, "Problem reading list of locations.", Toast.LENGTH_LONG).show();
+        }
+
+        // Create a heat map tile provider, passing it the latlngs of the crime.
+        Gradient gradient = new Gradient(colors,startPoints);
+        mProv = new HeatmapTileProvider.Builder()
+                .data(list)
+                .gradient(gradient)
+                .radius(20)
+                .build();
+        // Add a tile overlay to the map, using the heat map tile provider.
+        mOver = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProv));
+        mOver.clearTileCache();
+
     }
+
     /*// Declare a variable for the cluster manager.
     private ClusterManager<MyItem> mClusterManager;
 
     private void setUpClusterer() {
         // Position the map.
-        getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
+        ().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
 
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
