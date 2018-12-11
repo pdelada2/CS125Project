@@ -12,10 +12,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
@@ -86,7 +88,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onHybridMap(View view) {
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     }
-    /*private void addHeatMap() {
+    private void addHeatMap() {
         List<LatLng> list = new ArrayList<>();
 
         // Get the data: latitude/longitude positions of the crime.
@@ -98,16 +100,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Create a heat map tile provider, passing it the latlngs of the crime.
         Gradient gradient = new Gradient(colors,startPoints);
-        mProvider = new HeatmapTileProvider.Builder()
+        mProv = new HeatmapTileProvider.Builder()
                 .data(list)
                 .gradient(gradient)
-                .radius(20)
+                .radius(50)
+                .opacity(1)
                 .build();
         // Add a tile overlay to the map, using the heat map tile provider.
-        mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
-        mOverlay.clearTileCache();
+        mOver = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProv));
+        mOver.clearTileCache();
         Toast.makeText(this,"added heatmap",Toast.LENGTH_SHORT).show();
-    }*/
+    }
 
     private ArrayList<LatLng> readItems(int resource) throws JSONException {
         ArrayList<LatLng> list = new ArrayList<LatLng>();
@@ -122,15 +125,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         return list;
     }
-    int[] colors = {Color.GREEN, Color.YELLOW, Color.rgb(255,165,0),
-        Color.RED, Color.rgb(153,50,204), Color.rgb(165,42,42)};
+    int[] colors = {Color.BLUE, Color.YELLOW, Color.rgb(255,165,0),
+        Color.RED};
     float[] startPoints = {
-            0.0f,    //0-50
-            0.1f,   //51-100
-            0.2f,   //101-150
-            0.3f,   //151-200
-            0.4f,    //201-300
-            0.6f      //301-500
+            0.7f,    //0-50
+            0.8f,   //51-100
+            0.9f,   //101-150
+            1f,   //151-200
     };
 
     /**
@@ -145,11 +146,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        UiSettings mSettings = mMap.getUiSettings();
 
-        // Add a marker in Sydney and move the camera
+        // Add a marker in Champaign and move the camera
         LatLng champaign = new LatLng(40.1164, -88.2434);
         mMap.addMarker(new MarkerOptions().position(champaign).title("Champaign, Illinois"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(champaign));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(40.1164,-88.2434), 12.0f));
+        addHeatMap();
+        mSettings.setZoomControlsEnabled(true);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -157,27 +162,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         mMap.setMyLocationEnabled(true);
-        List<LatLng> list = null;
 
-        // Get the data: latitude/longitude positions of the crime.
-        try {
-            list = readItems(R.raw.uipd);
-        } catch (JSONException e) {
-            Toast.makeText(this, "Problem reading list of locations.", Toast.LENGTH_LONG).show();
-        }
-
-        // Create a heat map tile provider, passing it the latlngs of the crime.
-        Gradient gradient = new Gradient(colors,startPoints);
-        mProv = new HeatmapTileProvider.Builder()
-                .data(list)
-                .gradient(gradient)
-                .radius(20)
-                .build();
-        // Add a tile overlay to the map, using the heat map tile provider.
-        mOver = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProv));
-        mOver.clearTileCache();
 
     }
+
 
     /*// Declare a variable for the cluster manager.
     private ClusterManager<MyItem> mClusterManager;
