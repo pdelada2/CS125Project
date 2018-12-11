@@ -125,13 +125,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         return list;
     }
-    int[] colors = {Color.BLUE, Color.YELLOW, Color.rgb(255,165,0),
-        Color.RED};
+    int[] colors = {Color.BLUE, Color.YELLOW, Color.RED};
     float[] startPoints = {
-            0.7f,    //0-50
-            0.8f,   //51-100
-            0.9f,   //101-150
-            1f,   //151-200
+            0.8f,    //0-50
+            0.9f,   //51-100
+            1f,   //101-150
     };
 
     /**
